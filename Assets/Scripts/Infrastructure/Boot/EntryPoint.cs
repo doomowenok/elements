@@ -20,6 +20,8 @@ namespace Infrastructure.Boot
         public void Initialize()
         {
             _stateMachine.AddState(_stateFactory.CreateState<BootstrapState>());
+            _stateMachine.AddState(_stateFactory.CreateState<LoadLevelState>());
+            _stateMachine.AddState(_stateFactory.CreateState<LevelState>());
 
             _stateMachine.Enter<BootstrapState>().Forget();
         }

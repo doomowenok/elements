@@ -4,14 +4,21 @@ namespace Infrastructure.FSM.Application.States
 {
     public sealed class BootstrapState : IState
     {
-        public UniTask Enter()
+        private readonly IApplicationStateMachine _stateMachine;
+
+        public BootstrapState(IApplicationStateMachine stateMachine)
         {
-            throw new System.NotImplementedException();
+            _stateMachine = stateMachine;
+        }
+        
+        public async UniTask Enter()
+        {
+            await _stateMachine.Enter<LoadLevelState>();
         }
 
         public UniTask Exit()
         {
-            throw new System.NotImplementedException();
+            return UniTask.CompletedTask;
         }
     }
 }
