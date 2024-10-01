@@ -26,10 +26,12 @@ namespace Core
             LevelGridConfig levelGridConfig = _gameConfig.LevelGridConfigs[level];
             
             Vector3 downCenterPosition = startPointsProvider.StartDownPoint.position;
-            float elementSize = _gameConfig.DefaultGridWidth / levelGridConfig.LevelGrid[0].Length;
+            int elementsCount = levelGridConfig.LevelGrid[0].Length;
+            float elementSize = _gameConfig.DefaultGridWidth / elementsCount;
             float updatedScale = elementSize / _elementConfig.ElementSize.x; 
-            //todo
-            Vector3 startSpawnPosition = downCenterPosition - new Vector3(elementSize * 2, 0.0f);
+            
+            Vector3 offset = new Vector3((elementSize * elementsCount / 2) - elementSize / 2, 0.0f);
+            Vector3 startSpawnPosition = downCenterPosition - offset;
 
             for (int i = 0; i < levelGridConfig.LevelGrid.Length; i++)
             {
