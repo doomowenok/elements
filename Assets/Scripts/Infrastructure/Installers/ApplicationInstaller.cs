@@ -1,4 +1,6 @@
 using Core;
+using Core.Element.Factory;
+using Core.Grid;
 using Infrastructure.Boot;
 using Infrastructure.FSM.Application;
 using Infrastructure.FSM.Application.States;
@@ -33,6 +35,10 @@ namespace Infrastructure.Installers
             builder.Register<ConfigProvider>(Lifetime.Singleton).AsImplementedInterfaces();
 
             builder.Register<GameCreator>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<Matcher>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<RenderOrderHelper>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<TransformCalculator>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<GridGameElementFactory>(Lifetime.Singleton).AsImplementedInterfaces();
         }
     }
 }
