@@ -30,46 +30,91 @@ namespace Core
         {
             float dot = Vector3.Dot(delta.normalized, Vector3.up);
             MoveType moveType = DetectMoveType(dot, delta.x);
+            int2 selectedElementIndex = selectedElement.GridIndex;
 
             switch (moveType)
             {
                 case MoveType.Up:
-                    int2 selectedElementIndex = selectedElement.GridIndex;
-                    
-                    if (selectedElementIndex.x >= _sessionData.Elements.Length) return;
-                    
-                    int nextUpIndex = selectedElementIndex.x + 1;
-                    
-                    if (_sessionData.Elements[nextUpIndex][selectedElementIndex.y] == null) return;
+                    if (selectedElementIndex.x >= _sessionData.Elements.Length - 1) return;
+                    if (_sessionData.Elements[selectedElementIndex.x + 1][selectedElementIndex.y] == null) return;
 
-                    GridGameElement upperElement = _sessionData.Elements[nextUpIndex][selectedElementIndex.y];
+                    GridGameElement upperElement = _sessionData.Elements[selectedElementIndex.x + 1][selectedElementIndex.y];
                     int2 upperElementIndex = upperElement.GridIndex;
-                    
-                    Vector3 currentElementPosition = _sessionData.Positions[selectedElementIndex.x][selectedElementIndex.y];
-                    Vector3 upperPosition = _sessionData.Positions[upperElementIndex.x][upperElementIndex.y];
 
-                    selectedElement.SetGridIndex(upperElementIndex);
-                    upperElement.SetGridIndex(selectedElementIndex);
-
-                    selectedElement.SetRenderOrder(_renderOrderHelper.GetRenderOrder(upperElementIndex.x, upperElementIndex.y));
-                    upperElement.SetRenderOrder(_renderOrderHelper.GetRenderOrder(selectedElementIndex.x, selectedElementIndex.y));
-                    
-                    selectedElement.transform.DOMove(upperPosition, 0.2f);
-                    upperElement.transform.DOMove(currentElementPosition, 0.2f);
-
-                    _sessionData.Elements[nextUpIndex][selectedElementIndex.y] = selectedElement;
-                    _sessionData.Elements[selectedElementIndex.x][selectedElementIndex.y] = upperElement;
-
+                    SwapElements(selectedElement, selectedElementIndex, upperElementIndex, upperElement, moveType);
                     break;
                 case MoveType.Down:
+                    if(selectedElementIndex.x == 0) return;
+                    
+                    GridGameElement lowerElement = _sessionData.Elements[selectedElementIndex.x - 1][selectedElementIndex.y];
+                    int2 lowerElementIndex = lowerElement.GridIndex;
+
+                    SwapElements(selectedElement, selectedElementIndex, lowerElementIndex, lowerElement, moveType);
                     break;
                 case MoveType.Left:
+                    if (selectedElementIndex.y == 0) return;
+                    if(_sessionData.Elements[selectedElementIndex.x][selectedElementIndex.y - 1] == null) return;
+                    
+                    GridGameElement leftElement = _sessionData.Elements[selectedElementIndex.x][selectedElementIndex.y - 1];
+                    int2 leftElementIndex = leftElement.GridIndex;
+                    
+                    SwapElements(selectedElement, selectedElementIndex, leftElementIndex, leftElement, moveType);
                     break;
                 case MoveType.Right:
+                    if(selectedElementIndex.y == _sessionData.Elements[0].Length - 1) return;
+                    if(_sessionData.Elements[selectedElementIndex.x][selectedElementIndex.y + 1] == null) return;
+                    
+                    GridGameElement rightElement = _sessionData.Elements[selectedElementIndex.x][selectedElementIndex.y + 1];
+                    int2 rightElementIndex = rightElement.GridIndex;
+                    
+                    SwapElements(selectedElement, selectedElementIndex, rightElementIndex, rightElement, moveType);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        private void SwapElements(GridGameElement selectedElement, int2 selectedElementIndex, int2 switchedElementIndex, GridGameElement switchedElement, MoveType moveType)
+        {
+            Vector3 currentElementPosition = _sessionData.Positions[selectedElementIndex.x][selectedElementIndex.y];
+            Vector3 upperPosition = _sessionData.Positions[switchedElementIndex.x][switchedElementIndex.y];
+
+            selectedElement.SetGridIndex(switchedElementIndex);
+            switchedElement.SetGridIndex(selectedElementIndex);
+
+            selectedElement.SetRenderOrder(_renderOrderHelper.GetRenderOrder(switchedElementIndex.x, switchedElementIndex.y));
+            switchedElement.SetRenderOrder(_renderOrderHelper.GetRenderOrder(selectedElementIndex.x, selectedElementIndex.y));
+                    
+            selectedElement.transform.DOMove(upperPosition, 0.2f);
+            switchedElement.transform.DOMove(currentElementPosition, 0.2f);
+
+            int nextRow = 0;
+            int nextColumn = 0;
+
+            switch (moveType)
+            {
+                case MoveType.Up:
+                    nextRow = selectedElementIndex.x + 1;
+                    nextColumn = selectedElementIndex.y;
+                    break;
+                case MoveType.Down:
+                    nextRow = selectedElementIndex.x - 1;
+                    nextColumn = selectedElementIndex.y;
+                    break;
+                case MoveType.Left:
+                    nextRow = selectedElementIndex.x;
+                    nextColumn = selectedElementIndex.y - 1;
+                    break;
+                case MoveType.Right:
+                    nextRow = selectedElementIndex.x;
+                    nextColumn = selectedElementIndex.y + 1;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(moveType), moveType, null);
+            }
+            
+            _sessionData.Elements[nextRow][nextColumn] = selectedElement;
+            _sessionData.Elements[selectedElementIndex.x][selectedElementIndex.y] = switchedElement;
         }
 
         private MoveType DetectMoveType(float dot, float xDirection)

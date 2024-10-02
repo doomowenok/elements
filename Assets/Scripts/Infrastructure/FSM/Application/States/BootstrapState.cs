@@ -13,6 +13,7 @@ namespace Infrastructure.FSM.Application.States
         
         public async UniTask Enter()
         {
+            UnityEngine.Application.targetFrameRate = 60;
             await _stateMachine.Enter<LoadLevelState>();
         }
 
