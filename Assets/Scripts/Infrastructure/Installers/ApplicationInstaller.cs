@@ -8,6 +8,7 @@ using Infrastructure.FSM.Application;
 using Infrastructure.FSM.Application.States;
 using Infrastructure.FSM.Factory;
 using Services;
+using Services.Save;
 using Services.Scene;
 using VContainer;
 using VContainer.Unity;
@@ -44,6 +45,8 @@ namespace Infrastructure.Installers
             builder.Register<CollisionDetector>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<InputSystem>(Lifetime.Singleton).As<ITickable, IInputSystem>();
             builder.Register<GridElementMover>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<PlayerPrefsSaveService>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<SessionSaver>(Lifetime.Singleton).AsImplementedInterfaces();
 
             builder.Register<SessionData>(Lifetime.Singleton).AsSelf();
         }

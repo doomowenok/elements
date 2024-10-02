@@ -10,15 +10,23 @@ namespace Core
 {
     public sealed class GridElementMover : IGridElementMover
     {
+        private const float DotMoveCheck = 0.5f;
+        
         private readonly IInputSystem _inputSystem;
         private readonly SessionData _sessionData;
         private readonly IRenderOrderHelper _renderOrderHelper;
+        private readonly ISessionSaver _sessionSaver;
 
-        public GridElementMover(IInputSystem inputSystem, SessionData sessionData, IRenderOrderHelper renderOrderHelper)
+        public GridElementMover(
+            IInputSystem inputSystem, 
+            SessionData sessionData, 
+            IRenderOrderHelper renderOrderHelper,
+            ISessionSaver sessionSaver)
         {
             _inputSystem = inputSystem;
             _sessionData = sessionData;
             _renderOrderHelper = renderOrderHelper;
+            _sessionSaver = sessionSaver;
         }
 
         public void Initialize()
@@ -115,24 +123,18 @@ namespace Core
             
             _sessionData.Elements[nextRow][nextColumn] = selectedElement;
             _sessionData.Elements[selectedElementIndex.x][selectedElementIndex.y] = switchedElement;
+
+            _sessionSaver.UpdateSaveData();
         }
 
         private MoveType DetectMoveType(float dot, float xDirection)
         {
-            MoveType moveType;
-            
-            if (dot > 0.5f)
+            MoveType moveType = dot switch
             {
-                moveType = MoveType.Up;
-            }
-            else if (dot < -0.5)
-            {
-                moveType = MoveType.Down;
-            }
-            else
-            {
-                moveType = xDirection > 0.0f ? MoveType.Right : MoveType.Left;
-            }
+                > DotMoveCheck => MoveType.Up,
+                < -DotMoveCheck => MoveType.Down,
+                _ => xDirection > 0.0f ? MoveType.Right : MoveType.Left
+            };
 
             return moveType;
         }
