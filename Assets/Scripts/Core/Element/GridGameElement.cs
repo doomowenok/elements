@@ -1,3 +1,4 @@
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace Core.Element
@@ -7,6 +8,7 @@ namespace Core.Element
         [SerializeField] private SpriteRenderer _renderer;
         
         public ElementType Type { get; private set; }
+        public int2 GridIndex { get; private set; }
         
         public void SetElementType(ElementType type)
         {
@@ -16,6 +18,11 @@ namespace Core.Element
         public void SetRenderOrder(int order)
         {
             _renderer.sortingOrder = order;
+        }
+
+        public void SetGridIndex(int2 index)
+        {
+            GridIndex = index;
         }
     }
 }

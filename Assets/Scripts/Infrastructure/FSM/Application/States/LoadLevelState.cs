@@ -20,7 +20,6 @@ namespace Infrastructure.FSM.Application.States
         public async UniTask Enter()
         {
             _sceneLoader.LoadSceneAsync("Game", CreateGame);
-            await _stateMachine.Enter<LevelState>();
         }
 
         public UniTask Exit()
@@ -31,6 +30,7 @@ namespace Infrastructure.FSM.Application.States
         private void CreateGame()
         {
             _gameCreator.CreateGame(0);
+            _stateMachine.Enter<LevelState>();
         }
     }
 }

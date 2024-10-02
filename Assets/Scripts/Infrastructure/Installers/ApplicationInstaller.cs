@@ -1,6 +1,7 @@
 using Core;
 using Core.Element.Factory;
 using Core.Grid;
+using Core.Input;
 using Core.Session;
 using Infrastructure.Boot;
 using Infrastructure.FSM.Application;
@@ -40,6 +41,9 @@ namespace Infrastructure.Installers
             builder.Register<RenderOrderHelper>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<TransformCalculator>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<GridGameElementFactory>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<CollisionDetector>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<InputSystem>(Lifetime.Singleton).As<ITickable, IInputSystem>();
+            builder.Register<GridElementMover>(Lifetime.Singleton).AsImplementedInterfaces();
 
             builder.Register<SessionData>(Lifetime.Singleton).AsSelf();
         }
