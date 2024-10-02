@@ -102,6 +102,10 @@ namespace Core
                     gridGameElements[i][k] = element;
                 }
             }
+
+            _sessionData.Level = saveData.Level;
+            _sessionData.Elements = gridGameElements;
+            _sessionData.Positions = gridPositions;
         }
     }
 }
