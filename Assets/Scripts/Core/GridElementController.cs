@@ -5,6 +5,7 @@ using Core.Element.Config;
 using Core.Grid;
 using Core.Input;
 using Core.Session;
+using Core.Win;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Services;
@@ -23,9 +24,11 @@ namespace Core
         private readonly ISessionSaver _sessionSaver;
         private readonly IMatcher _matcher;
         private readonly IGridRecalculationController _gridRecalculationController;
+        private readonly IWinChecker _winChecker;
         private readonly ElementConfig _elementConfig;
 
         private readonly List<GridGameElement> _matchedElements = new List<GridGameElement>();
+        private readonly List<UniTask> _matchElementsTasks = new List<UniTask>();
 
         public GridElementController(
             IInputSystem inputSystem, 
@@ -34,7 +37,8 @@ namespace Core
             ISessionSaver sessionSaver,
             IMatcher matcher,
             IConfigProvider configs,
-            IGridRecalculationController gridRecalculationController)
+            IGridRecalculationController gridRecalculationController,
+            IWinChecker winChecker)
         {
             _inputSystem = inputSystem;
             _sessionController = sessionController;
@@ -42,15 +46,21 @@ namespace Core
             _sessionSaver = sessionSaver;
             _matcher = matcher;
             _gridRecalculationController = gridRecalculationController;
+            _winChecker = winChecker;
             _elementConfig = configs.GetConfig<ElementConfig>();
         }
 
         public void Initialize()
         {
-            _inputSystem.OnEndInput += (delta, element) => ChangeElementPosition(delta, element).Forget();
+            _inputSystem.OnEndInput += ChangeElementPositionAsync;
         }
 
-        private async UniTask ChangeElementPosition(Vector3 delta, GridGameElement selectedElement)
+        public void Dispose()
+        {
+            _inputSystem.OnEndInput -= ChangeElementPositionAsync;
+        }
+
+        private async void ChangeElementPositionAsync(Vector3 delta, GridGameElement selectedElement)
         {
             float dot = Vector3.Dot(delta.normalized, Vector3.up);
             MoveType moveType = DetectMoveType(dot, delta.x);
@@ -106,9 +116,11 @@ namespace Core
                     throw new ArgumentOutOfRangeException();
             }
             
+            await FindMatches();
+            
             _sessionSaver.UpdateSaveData();
 
-            FindMatches().Forget();
+            _winChecker.CheckWin();
         }
 
         private async UniTask SwapElements(
@@ -141,11 +153,11 @@ namespace Core
                 switchedElement.SetRenderOrder(_renderOrderHelper.GetRenderOrder(selectedElementIndex.x, selectedElementIndex.y));
             }
             
-            selectedElement.transform.DOMove(nextPosition, _elementConfig.MoveAcrossGridSpeed);
+            selectedElement.transform.DOMove(nextPosition, _elementConfig.MoveTimeAcrossGridSpeed);
 
             if (switchedElement != null)
             {
-                switchedElement.transform.DOMove(selectedElementPosition, _elementConfig.MoveAcrossGridSpeed);
+                switchedElement.transform.DOMove(selectedElementPosition, _elementConfig.MoveTimeAcrossGridSpeed);
             }
 
             int nextRow = 0;
@@ -176,7 +188,7 @@ namespace Core
             _sessionController.Elements[nextRow][nextColumn] = selectedElement;
             _sessionController.Elements[selectedElementIndex.x][selectedElementIndex.y] = switchedElement == null ? null : switchedElement;
 
-            await UniTask.WaitForSeconds(_elementConfig.MoveAcrossGridSpeed);
+            await UniTask.WaitForSeconds(_elementConfig.MoveTimeAcrossGridSpeed);
         }
 
         private async UniTask FindMatches()
@@ -188,23 +200,25 @@ namespace Core
                 if (matches.Count == 0) return;
             
                 ProcessMatchElements(matches);
-                StartDestroyMatchElements(matches);
-
-                await UniTask.WaitForSeconds(_elementConfig.DelayBeforeDestroy);
+                await StartDestroyMatchElements(matches);
 
                 _gridRecalculationController.RecalculateGrid();
             }
         }
 
-        private void StartDestroyMatchElements(List<int2> matches)
+        private async UniTask StartDestroyMatchElements(List<int2> matches)
         {
             matches.ForEach(index => _sessionController.Elements[index.x][index.y] = null);
             
             foreach (GridGameElement element in _matchedElements)
             {
-                element.Destroy(_elementConfig.DelayBeforeDestroy);
+                _matchElementsTasks.Add(element.Destroy());
                 element.SetAvailability(ElementAvailabilityType.NotAvailable);
             }
+
+            await UniTask.WhenAll(_matchElementsTasks);
+            
+            _matchElementsTasks.Clear();
         }
 
         private void ProcessMatchElements(List<int2> matches)

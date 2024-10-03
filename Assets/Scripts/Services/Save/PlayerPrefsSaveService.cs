@@ -20,5 +20,11 @@ namespace Services.Save
 
         public bool ContainsSave<TData>() where TData : class => 
             PlayerPrefs.HasKey(typeof(TData).Name);
+
+        public void ClearSave<TData>() where TData : class
+        {
+            PlayerPrefs.DeleteKey(typeof(TData).Name);
+            PlayerPrefs.Save();
+        }
     }
 }

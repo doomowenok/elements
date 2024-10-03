@@ -10,27 +10,23 @@ namespace Core.Element.Config
         [SerializeField] private Vector2 _elementSize = Vector2.one * 2.0f;
         public Vector2 ElementSize => _elementSize;
         
-        [SerializeField] private List<ElementPrefabData> _elementPrefabsData;
-        private Dictionary<ElementType, GridGameElement> _elementPrefabs;
-
-        [SerializeField] private float _delayBeforeDestroy = 1.0f;
-        public float DelayBeforeDestroy => _delayBeforeDestroy;
-
-        [SerializeField] private float _moveAcrossGridSpeed = 0.2f;
-        public float MoveAcrossGridSpeed => _moveAcrossGridSpeed;
-
-        public IReadOnlyDictionary<ElementType, GridGameElement> ElementPrefabs
+        [SerializeField] private List<ElementData> _elementPrefabsData;
+        private Dictionary<ElementType, ElementData> _elementPrefabs;
+        public IReadOnlyDictionary<ElementType, ElementData> ElementPrefabs
         {
             get
             {
                 if (_elementPrefabs == null || _elementPrefabs.Count == 0)
                 {
                     _elementPrefabs = _elementPrefabsData
-                        .ToDictionary(key => key.Type, value => value.Prefab);
+                        .ToDictionary(key => key.Type);
                 }
 
                 return _elementPrefabs;
             }
         }
+
+        [SerializeField] private float _moveTimeAcrossGridSpeed = 0.2f;
+        public float MoveTimeAcrossGridSpeed => _moveTimeAcrossGridSpeed;
     }
 }

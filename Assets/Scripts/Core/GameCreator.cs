@@ -15,14 +15,14 @@ namespace Core
     {
         private readonly IGridGameElementFactory _elementFactory;
         private readonly ITransformCalculator _transformCalculator;
-        private readonly Session.SessionController _sessionController;
+        private readonly SessionController _sessionController;
         private readonly GameConfig _gameConfig;
 
         public GameCreator(
             IConfigProvider configProvider,
             IGridGameElementFactory elementFactory, 
             ITransformCalculator transformCalculator,
-            Session.SessionController sessionController)
+            SessionController sessionController)
         {
             _elementFactory = elementFactory;
             _transformCalculator = transformCalculator;
@@ -32,7 +32,7 @@ namespace Core
 
         public void CreateGame(int level)
         {
-            LevelGridConfig levelGridConfig = _gameConfig.LevelGridConfigs[level];
+            LevelGridConfig levelGridConfig = _gameConfig.LevelGridConfigs[level % _gameConfig.LevelGridConfigs.Count];
             
             GridGameElement[][] gridGameElements = new GridGameElement[levelGridConfig.LevelGrid.Length][];
             Vector3[][] gridPositions = new Vector3[levelGridConfig.LevelGrid.Length][];

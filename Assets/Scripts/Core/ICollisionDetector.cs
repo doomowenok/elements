@@ -5,7 +5,7 @@ namespace Core
 {
     public interface ICollisionDetector
     {
-        IReadOnlyList<GridGameElement> GetAllRegisteredElements();
+        List<GridGameElement> GetAllRegisteredElements();
         GridGameElement GetGridGameElementByID(int id);
         void Add(GridGameElement element);
         bool Contains(int id);

@@ -50,8 +50,6 @@ namespace Core
             
             _sessionController.ClearElements();
             _sessionController.FillElements(_elementFactory.GetAllActiveElements());
-            
-            Debug.Log(_sessionController);
         }
         
         private bool HasAnyElementInColumns(int column)
@@ -147,7 +145,7 @@ namespace Core
                 int2 elementIndex = data.Index;
                 int2 previousIndex = data.PreviousIndex;
                 GridGameElement element = data.Element;
-                float moveTime = Mathf.Abs(previousIndex.x - elementIndex.x) * _elementConfig.MoveAcrossGridSpeed;
+                float moveTime = Mathf.Abs(previousIndex.x - elementIndex.x) * _elementConfig.MoveTimeAcrossGridSpeed;
                 _sessionController.Elements[elementIndex.x][elementIndex.y] = element;
                 Vector3 position = _sessionController.Positions[elementIndex.x][elementIndex.y];
                 element.SetGridIndex(elementIndex);

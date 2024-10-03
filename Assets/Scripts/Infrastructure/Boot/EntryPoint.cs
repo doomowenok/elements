@@ -22,6 +22,8 @@ namespace Infrastructure.Boot
             _stateMachine.AddState(_stateFactory.CreateState<BootstrapState>());
             _stateMachine.AddState(_stateFactory.CreateState<LoadLevelState>());
             _stateMachine.AddState(_stateFactory.CreateState<LevelState>());
+            _stateMachine.AddState(_stateFactory.CreateState<IncreaseLevelState>());
+            _stateMachine.AddState(_stateFactory.CreateState<RestartLevelState>());
 
             _stateMachine.Enter<BootstrapState>().Forget();
         }

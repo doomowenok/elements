@@ -3,10 +3,13 @@ using Core.Element.Factory;
 using Core.Grid;
 using Core.Input;
 using Core.Session;
+using Core.Win;
 using Infrastructure.Boot;
 using Infrastructure.FSM.Application;
 using Infrastructure.FSM.Application.States;
 using Infrastructure.FSM.Factory;
+using Infrastructure.UI;
+using Infrastructure.UI.Factory;
 using Services;
 using Services.Save;
 using Services.Scene;
@@ -30,8 +33,12 @@ namespace Infrastructure.Installers
             builder.Register<BootstrapState>(Lifetime.Singleton);
             builder.Register<LoadLevelState>(Lifetime.Singleton);
             builder.Register<LevelState>(Lifetime.Singleton);
+            builder.Register<IncreaseLevelState>(Lifetime.Singleton);
+            builder.Register<RestartLevelState>(Lifetime.Singleton);
 
             builder.Register<StateFactory>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<UIFactory>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<UIController>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<ApplicationStateMachine>(Lifetime.Singleton).AsImplementedInterfaces();
             
             builder.Register<SceneLoader>(Lifetime.Singleton).AsImplementedInterfaces();
@@ -48,6 +55,9 @@ namespace Infrastructure.Installers
             builder.Register<PlayerPrefsSaveService>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<SessionSaver>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<GridRecalculationController>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<WinChecker>(Lifetime.Singleton).AsImplementedInterfaces();
+            
+            builder.Register<GameplayDisposer>(Lifetime.Singleton).AsImplementedInterfaces();
 
             builder.Register<SessionController>(Lifetime.Singleton).AsSelf();
         }

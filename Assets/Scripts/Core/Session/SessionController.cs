@@ -32,6 +32,19 @@ namespace Core.Session
             }
         }
 
+        public bool IsElementsEmpty()
+        {
+            for (int i = 0; i < Elements[0].Length; i++)
+            {
+                if (Elements[0][i] != null)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
