@@ -16,6 +16,9 @@ namespace Core.Element.Config
         [SerializeField] private float _delayBeforeDestroy = 1.0f;
         public float DelayBeforeDestroy => _delayBeforeDestroy;
 
+        [SerializeField] private float _moveAcrossGridSpeed = 0.2f;
+        public float MoveAcrossGridSpeed => _moveAcrossGridSpeed;
+
         public IReadOnlyDictionary<ElementType, GridGameElement> ElementPrefabs
         {
             get

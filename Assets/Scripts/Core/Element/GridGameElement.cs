@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -12,7 +13,7 @@ namespace Core.Element
         
         [SerializeField] private SpriteRenderer _renderer;
         [SerializeField] private Animator _animator;
-        
+
         public ElementType Type { get; private set; }
         public int2 GridIndex { get; private set; }
         public ElementAvailabilityType Availability { get; private set; }

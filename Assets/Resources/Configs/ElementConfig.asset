@@ -18,4 +18,5 @@ MonoBehaviour:
     Prefab: {fileID: 6111093512189669313, guid: 0d21d2feec15742aeb9d9a1b4f2018b4, type: 3}
   - Type: 2
     Prefab: {fileID: 2158212521544441260, guid: 27797ad7f87a14b8a9f318ee6c2f98c9, type: 3}
-  _delayBeforeDestroy: 0.75
+  _delayBeforeDestroy: 1.328
+  _moveAcrossGridSpeed: 0.2

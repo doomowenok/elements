@@ -47,8 +47,9 @@ namespace Infrastructure.Installers
             builder.Register<GridElementController>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<PlayerPrefsSaveService>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<SessionSaver>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<GridRecalculationController>(Lifetime.Singleton).AsImplementedInterfaces();
 
-            builder.Register<Session>(Lifetime.Singleton).AsSelf();
+            builder.Register<SessionController>(Lifetime.Singleton).AsSelf();
         }
     }
 }

@@ -8,34 +8,34 @@ namespace Core
     public sealed class SessionSaver : ISessionSaver
     {
         private readonly ISaveService _saveService;
-        private readonly Session.Session _session;
+        private readonly Session.SessionController _sessionController;
 
         private readonly List<int> _elements = new List<int>();
         private readonly SessionSaveData _saveData = new SessionSaveData();
 
-        public SessionSaver(ISaveService saveService, Session.Session session)
+        public SessionSaver(ISaveService saveService, Session.SessionController sessionController)
         {
             _saveService = saveService;
-            _session = session;
+            _sessionController = sessionController;
         }
 
         public void UpdateSaveData()
         {
             _elements.Clear();
 
-            for (int i = 0; i < _session.Elements.Length; i++)
+            for (int i = 0; i < _sessionController.Elements.Length; i++)
             {
-                for (int j = 0; j < _session.Elements[i].Length; j++)
+                for (int j = 0; j < _sessionController.Elements[i].Length; j++)
                 {
-                    GridGameElement element = _session.Elements[i][j];
+                    GridGameElement element = _sessionController.Elements[i][j];
                     ElementType type = element == null ? ElementType.None : element.Type;
                     _elements.Add((int)type);
                 }
             }
             
-            _saveData.Level = _session.Level;
-            _saveData.Rows = _session.Elements.Length;
-            _saveData.Columns = _session.Elements[0].Length;
+            _saveData.Level = _sessionController.Level;
+            _saveData.Rows = _sessionController.Elements.Length;
+            _saveData.Columns = _sessionController.Elements[0].Length;
             _saveData.Elements = _elements;
 
             _saveService.Save(_saveData);

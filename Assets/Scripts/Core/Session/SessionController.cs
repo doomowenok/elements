@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Core.Session
 {
-    public class Session
+    public class SessionController
     {
         public int Level;
         public GridGameElement[][] Elements { get; set; }
