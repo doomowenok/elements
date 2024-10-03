@@ -30,7 +30,7 @@ namespace Core
             _gameConfig = configProvider.GetConfig<GameConfig>();
         }
 
-        public async UniTask CreateGame(int level)
+        public void CreateGame(int level)
         {
             LevelGridConfig levelGridConfig = _gameConfig.LevelGridConfigs[level];
             
@@ -52,7 +52,7 @@ namespace Core
                     
                     if (elementType == ElementType.None) continue;
 
-                    GridGameElement element = await _elementFactory.Create(elementType, new int2(i, k), spawnPosition, _transformCalculator.GetScale(elementsCount));
+                    GridGameElement element = _elementFactory.Create(elementType, new int2(i, k), spawnPosition, _transformCalculator.GetScale(elementsCount));
                     gridGameElements[i][k] = element;
                 }
             }
@@ -62,7 +62,7 @@ namespace Core
             _sessionData.Positions = gridPositions;
         }
 
-        public async UniTask RecoverGame(SessionSaveData saveData)
+        public void RecoverGame(SessionSaveData saveData)
         {
             LevelGridConfig levelGridConfig = _gameConfig.LevelGridConfigs[saveData.Level];
             
@@ -98,7 +98,7 @@ namespace Core
                     
                     if (elementType == ElementType.None) continue;
 
-                    GridGameElement element = await _elementFactory.Create(elementType, new int2(i, k), spawnPosition, _transformCalculator.GetScale(elementsInRow));
+                    GridGameElement element = _elementFactory.Create(elementType, new int2(i, k), spawnPosition, _transformCalculator.GetScale(elementsInRow));
                     gridGameElements[i][k] = element;
                 }
             }

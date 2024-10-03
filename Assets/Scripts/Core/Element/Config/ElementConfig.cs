@@ -13,6 +13,9 @@ namespace Core.Element.Config
         [SerializeField] private List<ElementPrefabData> _elementPrefabsData;
         private Dictionary<ElementType, GridGameElement> _elementPrefabs;
 
+        [SerializeField] private float _delayBeforeDestroy = 1.0f;
+        public float DelayBeforeDestroy => _delayBeforeDestroy;
+
         public IReadOnlyDictionary<ElementType, GridGameElement> ElementPrefabs
         {
             get

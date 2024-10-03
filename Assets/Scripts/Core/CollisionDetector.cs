@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Core.Element;
 
 namespace Core
@@ -7,6 +8,7 @@ namespace Core
     {
         private readonly Dictionary<int, GridGameElement> _gridGameElements = new Dictionary<int, GridGameElement>();
 
+        public IReadOnlyList<GridGameElement> GetAllRegisteredElements() => _gridGameElements.Values.ToList();
         public GridGameElement GetGridGameElementByID(int id) => _gridGameElements[id];
         public void Add(GridGameElement element) => _gridGameElements.Add(element.gameObject.GetInstanceID(), element);
         public bool Contains(int id) => _gridGameElements.ContainsKey(id);

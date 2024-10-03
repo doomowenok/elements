@@ -44,7 +44,7 @@ namespace Infrastructure.Installers
             builder.Register<GridGameElementFactory>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<CollisionDetector>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<InputSystem>(Lifetime.Singleton).As<ITickable, IInputSystem>();
-            builder.Register<GridElementMover>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<GridElementController>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<PlayerPrefsSaveService>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<SessionSaver>(Lifetime.Singleton).AsImplementedInterfaces();
 

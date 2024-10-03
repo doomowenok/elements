@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -6,6 +6,7 @@ namespace Core.Element.Factory
 {
     public interface IGridGameElementFactory
     {
-        UniTask<GridGameElement> Create(ElementType type, int2 gridIndex, Vector3 position, Vector3 scale, Transform parent = null);
+        IReadOnlyList<GridGameElement> GetAllActiveElements();
+        GridGameElement Create(ElementType type, int2 gridIndex, Vector3 position, Vector3 scale, Transform parent = null);
     }
 }

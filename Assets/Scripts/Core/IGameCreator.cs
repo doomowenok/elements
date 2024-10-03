@@ -5,7 +5,7 @@ namespace Core
 {
     public interface IGameCreator
     {
-        UniTask CreateGame(int level);
-        UniTask RecoverGame(SessionSaveData saveData);
+        void CreateGame(int level);
+        void RecoverGame(SessionSaveData saveData);
     }
 }

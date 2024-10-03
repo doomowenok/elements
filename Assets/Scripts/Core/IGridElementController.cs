@@ -1,6 +1,6 @@
 namespace Core
 {
-    public interface IGridElementMover
+    public interface IGridElementController
     {
         void Initialize();
     }

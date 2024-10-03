@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6111093512189669313}
   - component: {fileID: 7759785265916711762}
   - component: {fileID: 4335074415318285713}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: GridGameElement_Fire
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48,6 +48,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _renderer: {fileID: 3261442079617530290}
+  _animator: {fileID: 3055911277982875390}
 --- !u!61 &7759785265916711762
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -130,7 +131,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3764273306041172064}
   - component: {fileID: 3261442079617530290}
-  - component: {fileID: 5114342240194977280}
+  - component: {fileID: 3055911277982875390}
   m_Layer: 0
   m_Name: Body
   m_TagString: Untagged
@@ -205,7 +206,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!95 &5114342240194977280
+--- !u!95 &3055911277982875390
 Animator:
   serializedVersion: 5
   m_ObjectHideFlags: 0

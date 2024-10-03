@@ -7,7 +7,6 @@ namespace Services.Save
         public void Save<TData>(TData data) where TData : class
         {
             string json = JsonUtility.ToJson(data);
-            Debug.Log($"Save: {json}");
             PlayerPrefs.SetString(typeof(TData).Name, json);
             PlayerPrefs.Save();
         }

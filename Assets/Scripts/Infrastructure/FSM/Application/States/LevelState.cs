@@ -7,18 +7,18 @@ namespace Infrastructure.FSM.Application.States
     public sealed class LevelState : IState
     {
         private readonly IInputSystem _inputSystem;
-        private readonly IGridElementMover _gridElementMover;
+        private readonly IGridElementController _gridElementController;
 
-        public LevelState(IInputSystem inputSystem, IGridElementMover gridElementMover)
+        public LevelState(IInputSystem inputSystem, IGridElementController gridElementController)
         {
             _inputSystem = inputSystem;
-            _gridElementMover = gridElementMover;
+            _gridElementController = gridElementController;
         }
         
         public UniTask Enter()
         {
             _inputSystem.EnableInput();
-            _gridElementMover.Initialize();
+            _gridElementController.Initialize();
             return UniTask.CompletedTask;
         }
 

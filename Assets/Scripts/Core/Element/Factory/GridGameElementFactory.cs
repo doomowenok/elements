@@ -1,5 +1,5 @@
+using System.Collections.Generic;
 using Core.Element.Config;
-using Cysharp.Threading.Tasks;
 using Services;
 using Unity.Mathematics;
 using UnityEngine;
@@ -18,16 +18,27 @@ namespace Core.Element.Factory
             _collisionDetector = collisionDetector;
             _elementConfig = configs.GetConfig<ElementConfig>();
         }
-        
-        public async UniTask<GridGameElement> Create(ElementType type, int2 gridIndex, Vector3 position, Vector3 scale, Transform parent = null)
+
+        public IReadOnlyList<GridGameElement> GetAllActiveElements() =>
+            _collisionDetector.GetAllRegisteredElements();
+
+        public GridGameElement Create(ElementType type, int2 gridIndex, Vector3 position, Vector3 scale, Transform parent = null)
         {
             GridGameElement element = Object.Instantiate(_elementConfig.ElementPrefabs[type], position, Quaternion.identity);
             element.transform.localScale = scale;
             element.SetRenderOrder(_renderOrderHelper.GetRenderOrder(gridIndex.x, gridIndex.y));
             element.SetElementType(type);
             element.SetGridIndex(gridIndex);
+            element.SetAvailability(ElementAvailabilityType.Available);
             _collisionDetector.Add(element);
+            element.OnDestroy += RemoveFromCollisionDetector;
             return element;
+        }
+
+        private void RemoveFromCollisionDetector(GridGameElement element)
+        {
+            element.OnDestroy -= RemoveFromCollisionDetector;
+            _collisionDetector.Remove(element.gameObject.GetInstanceID());
         }
     }
 }

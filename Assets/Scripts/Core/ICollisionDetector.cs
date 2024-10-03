@@ -1,9 +1,11 @@
+using System.Collections.Generic;
 using Core.Element;
 
 namespace Core
 {
     public interface ICollisionDetector
     {
+        IReadOnlyList<GridGameElement> GetAllRegisteredElements();
         GridGameElement GetGridGameElementByID(int id);
         void Add(GridGameElement element);
         bool Contains(int id);

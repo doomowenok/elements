@@ -27,7 +27,7 @@ namespace Infrastructure.FSM.Application.States
         
         public async UniTask Enter()
         {
-            _sceneLoader.LoadSceneAsync("Game", () => CreateGame().Forget());
+            await _sceneLoader.LoadSceneAsync("Game", () => CreateGame().Forget());
         }
 
         public UniTask Exit()
@@ -40,14 +40,14 @@ namespace Infrastructure.FSM.Application.States
             if (_saveService.ContainsSave<SessionSaveData>())
             {
                 SessionSaveData saveData = _saveService.Load<SessionSaveData>();
-                await _gameCreator.RecoverGame(saveData);
+                _gameCreator.RecoverGame(saveData);
             }
             else
             {
-                await _gameCreator.CreateGame(0);
+                _gameCreator.CreateGame(0);
             }
             
-            _stateMachine.Enter<LevelState>();
+            await _stateMachine.Enter<LevelState>();
         }
     }
 }
