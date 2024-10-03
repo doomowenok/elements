@@ -47,10 +47,10 @@ namespace Core
 
         public void Initialize()
         {
-            _inputSystem.OnEndInput += ChangeElementPosition;
+            _inputSystem.OnEndInput += (delta, element) => ChangeElementPosition(delta, element).Forget();
         }
 
-        private void ChangeElementPosition(Vector3 delta, GridGameElement selectedElement)
+        private async UniTask ChangeElementPosition(Vector3 delta, GridGameElement selectedElement)
         {
             float dot = Vector3.Dot(delta.normalized, Vector3.up);
             MoveType moveType = DetectMoveType(dot, delta.x);
@@ -65,7 +65,7 @@ namespace Core
                     GridGameElement upperElement = _sessionController.Elements[selectedElementIndex.x + 1][selectedElementIndex.y];
                     int2 upperElementIndex = upperElement.GridIndex;
 
-                    SwapElements(selectedElement, selectedElementIndex, upperElementIndex, upperElement, moveType);
+                    await SwapElements(selectedElement, selectedElementIndex, upperElement, upperElementIndex, moveType);
                     break;
                 case MoveType.Down:
                     if(selectedElementIndex.x == 0) return;
@@ -73,25 +73,34 @@ namespace Core
                     GridGameElement lowerElement = _sessionController.Elements[selectedElementIndex.x - 1][selectedElementIndex.y];
                     int2 lowerElementIndex = lowerElement.GridIndex;
 
-                    SwapElements(selectedElement, selectedElementIndex, lowerElementIndex, lowerElement, moveType);
+                    await SwapElements(selectedElement, selectedElementIndex, lowerElement, lowerElementIndex, moveType);
                     break;
                 case MoveType.Left:
                     if (selectedElementIndex.y == 0) return;
-                    if(_sessionController.Elements[selectedElementIndex.x][selectedElementIndex.y - 1] == null) return;
                     
                     GridGameElement leftElement = _sessionController.Elements[selectedElementIndex.x][selectedElementIndex.y - 1];
-                    int2 leftElementIndex = leftElement.GridIndex;
+                    int2 leftElementIndex = leftElement == null 
+                        ? new int2(selectedElementIndex.x, selectedElementIndex.y - 1) 
+                        : leftElement.GridIndex;
                     
-                    SwapElements(selectedElement, selectedElementIndex, leftElementIndex, leftElement, moveType);
+                    await SwapElements(selectedElement, selectedElementIndex, leftElement, leftElementIndex, moveType);
+
+                    _gridRecalculationController.RecalculateGrid();
+                    
                     break;
                 case MoveType.Right:
                     if(selectedElementIndex.y == _sessionController.Elements[0].Length - 1) return;
-                    if(_sessionController.Elements[selectedElementIndex.x][selectedElementIndex.y + 1] == null) return;
                     
                     GridGameElement rightElement = _sessionController.Elements[selectedElementIndex.x][selectedElementIndex.y + 1];
-                    int2 rightElementIndex = rightElement.GridIndex;
                     
-                    SwapElements(selectedElement, selectedElementIndex, rightElementIndex, rightElement, moveType);
+                    int2 rightElementIndex = rightElement == null 
+                        ? new int2(selectedElementIndex.x, selectedElementIndex.y + 1)  
+                        : rightElement.GridIndex;
+                    
+                    await SwapElements(selectedElement, selectedElementIndex, rightElement, rightElementIndex, moveType);
+                    
+                    _gridRecalculationController.RecalculateGrid();
+                    
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -102,25 +111,42 @@ namespace Core
             FindMatches().Forget();
         }
 
-        private void SwapElements(GridGameElement selectedElement, int2 selectedElementIndex, int2 switchedElementIndex, GridGameElement switchedElement, MoveType moveType)
+        private async UniTask SwapElements(
+            GridGameElement selectedElement, 
+            int2 selectedElementIndex, 
+            GridGameElement switchedElement, 
+            int2 switchedElementIndex, 
+            MoveType moveType)
         {
             if (selectedElement.Availability == ElementAvailabilityType.NotAvailable ||
-                switchedElement.Availability == ElementAvailabilityType.NotAvailable)
+                (switchedElement != null && switchedElement.Availability == ElementAvailabilityType.NotAvailable))
             {
                 return;
             }
             
             Vector3 selectedElementPosition = _sessionController.Positions[selectedElementIndex.x][selectedElementIndex.y];
-            Vector3 upperPosition = _sessionController.Positions[switchedElementIndex.x][switchedElementIndex.y];
+            Vector3 nextPosition = _sessionController.Positions[switchedElementIndex.x][switchedElementIndex.y];
 
             selectedElement.SetGridIndex(switchedElementIndex);
-            switchedElement.SetGridIndex(selectedElementIndex);
+
+            if (switchedElement != null)
+            {
+                switchedElement.SetGridIndex(selectedElementIndex);
+            }
 
             selectedElement.SetRenderOrder(_renderOrderHelper.GetRenderOrder(switchedElementIndex.x, switchedElementIndex.y));
-            switchedElement.SetRenderOrder(_renderOrderHelper.GetRenderOrder(selectedElementIndex.x, selectedElementIndex.y));
+
+            if (switchedElement != null)
+            {
+                switchedElement.SetRenderOrder(_renderOrderHelper.GetRenderOrder(selectedElementIndex.x, selectedElementIndex.y));
+            }
             
-            selectedElement.transform.DOMove(upperPosition, _elementConfig.MoveAcrossGridSpeed);
-            switchedElement.transform.DOMove(selectedElementPosition, _elementConfig.MoveAcrossGridSpeed);
+            selectedElement.transform.DOMove(nextPosition, _elementConfig.MoveAcrossGridSpeed);
+
+            if (switchedElement != null)
+            {
+                switchedElement.transform.DOMove(selectedElementPosition, _elementConfig.MoveAcrossGridSpeed);
+            }
 
             int nextRow = 0;
             int nextColumn = 0;
@@ -148,7 +174,9 @@ namespace Core
             }
             
             _sessionController.Elements[nextRow][nextColumn] = selectedElement;
-            _sessionController.Elements[selectedElementIndex.x][selectedElementIndex.y] = switchedElement;
+            _sessionController.Elements[selectedElementIndex.x][selectedElementIndex.y] = switchedElement == null ? null : switchedElement;
+
+            await UniTask.WaitForSeconds(_elementConfig.MoveAcrossGridSpeed);
         }
 
         private async UniTask FindMatches()

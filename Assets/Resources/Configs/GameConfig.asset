@@ -13,4 +13,7 @@ MonoBehaviour:
   m_Name: GameConfig
   m_EditorClassIdentifier: 
   _levelGridConfigs:
+  - {fileID: 11400000, guid: 6635d5bf70a2d42af8ef183748afc65d, type: 2}
   - {fileID: 11400000, guid: 5185175172cda461a929da2e04c866ec, type: 2}
+  - {fileID: 11400000, guid: 4876170b85ab344f9aa1fabd474cf314, type: 2}
+  _defaultGridWidth: 10
