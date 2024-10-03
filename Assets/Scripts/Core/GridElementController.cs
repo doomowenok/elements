@@ -1,18 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Core.Element;
 using Core.Element.Config;
 using Core.Element.Factory;
 using Core.Grid;
 using Core.Input;
-using Core.Session;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Services;
 using Unity.Mathematics;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Core
 {
@@ -21,32 +18,35 @@ namespace Core
         private const float DotMoveCheck = 0.5f;
         
         private readonly IInputSystem _inputSystem;
-        private readonly SessionData _sessionData;
+        private readonly Session.Session _session;
         private readonly IRenderOrderHelper _renderOrderHelper;
         private readonly ISessionSaver _sessionSaver;
         private readonly IMatcher _matcher;
         private readonly IGridGameElementFactory _elementFactory;
+        private readonly IGridRecalculationController _gridRecalculationController;
         private readonly ElementConfig _elementConfig;
 
         private readonly List<GridGameElement> _matchedElements = new List<GridGameElement>();
         private readonly List<GridGameElement> _elementsInColumns = new List<GridGameElement>();
-        private readonly List<MatchData> _elementsToMove = new List<MatchData>();
+        private readonly List<AfterMergeData> _elementsToMove = new List<AfterMergeData>();
 
         public GridElementController(
             IInputSystem inputSystem, 
-            SessionData sessionData, 
+            Session.Session session, 
             IRenderOrderHelper renderOrderHelper,
             ISessionSaver sessionSaver,
             IMatcher matcher,
             IConfigProvider configs,
-            IGridGameElementFactory elementFactory)
+            IGridGameElementFactory elementFactory,
+            IGridRecalculationController gridRecalculationController)
         {
             _inputSystem = inputSystem;
-            _sessionData = sessionData;
+            _session = session;
             _renderOrderHelper = renderOrderHelper;
             _sessionSaver = sessionSaver;
             _matcher = matcher;
             _elementFactory = elementFactory;
+            _gridRecalculationController = gridRecalculationController;
             _elementConfig = configs.GetConfig<ElementConfig>();
         }
 
@@ -64,10 +64,10 @@ namespace Core
             switch (moveType)
             {
                 case MoveType.Up:
-                    if (selectedElementIndex.x >= _sessionData.Elements.Length - 1) return;
-                    if (_sessionData.Elements[selectedElementIndex.x + 1][selectedElementIndex.y] == null) return;
+                    if (selectedElementIndex.x >= _session.Elements.Length - 1) return;
+                    if (_session.Elements[selectedElementIndex.x + 1][selectedElementIndex.y] == null) return;
 
-                    GridGameElement upperElement = _sessionData.Elements[selectedElementIndex.x + 1][selectedElementIndex.y];
+                    GridGameElement upperElement = _session.Elements[selectedElementIndex.x + 1][selectedElementIndex.y];
                     int2 upperElementIndex = upperElement.GridIndex;
 
                     SwapElements(selectedElement, selectedElementIndex, upperElementIndex, upperElement, moveType);
@@ -75,25 +75,25 @@ namespace Core
                 case MoveType.Down:
                     if(selectedElementIndex.x == 0) return;
                     
-                    GridGameElement lowerElement = _sessionData.Elements[selectedElementIndex.x - 1][selectedElementIndex.y];
+                    GridGameElement lowerElement = _session.Elements[selectedElementIndex.x - 1][selectedElementIndex.y];
                     int2 lowerElementIndex = lowerElement.GridIndex;
 
                     SwapElements(selectedElement, selectedElementIndex, lowerElementIndex, lowerElement, moveType);
                     break;
                 case MoveType.Left:
                     if (selectedElementIndex.y == 0) return;
-                    if(_sessionData.Elements[selectedElementIndex.x][selectedElementIndex.y - 1] == null) return;
+                    if(_session.Elements[selectedElementIndex.x][selectedElementIndex.y - 1] == null) return;
                     
-                    GridGameElement leftElement = _sessionData.Elements[selectedElementIndex.x][selectedElementIndex.y - 1];
+                    GridGameElement leftElement = _session.Elements[selectedElementIndex.x][selectedElementIndex.y - 1];
                     int2 leftElementIndex = leftElement.GridIndex;
                     
                     SwapElements(selectedElement, selectedElementIndex, leftElementIndex, leftElement, moveType);
                     break;
                 case MoveType.Right:
-                    if(selectedElementIndex.y == _sessionData.Elements[0].Length - 1) return;
-                    if(_sessionData.Elements[selectedElementIndex.x][selectedElementIndex.y + 1] == null) return;
+                    if(selectedElementIndex.y == _session.Elements[0].Length - 1) return;
+                    if(_session.Elements[selectedElementIndex.x][selectedElementIndex.y + 1] == null) return;
                     
-                    GridGameElement rightElement = _sessionData.Elements[selectedElementIndex.x][selectedElementIndex.y + 1];
+                    GridGameElement rightElement = _session.Elements[selectedElementIndex.x][selectedElementIndex.y + 1];
                     int2 rightElementIndex = rightElement.GridIndex;
                     
                     SwapElements(selectedElement, selectedElementIndex, rightElementIndex, rightElement, moveType);
@@ -115,8 +115,8 @@ namespace Core
                 return;
             }
             
-            Vector3 selectedElementPosition = _sessionData.Positions[selectedElementIndex.x][selectedElementIndex.y];
-            Vector3 upperPosition = _sessionData.Positions[switchedElementIndex.x][switchedElementIndex.y];
+            Vector3 selectedElementPosition = _session.Positions[selectedElementIndex.x][selectedElementIndex.y];
+            Vector3 upperPosition = _session.Positions[switchedElementIndex.x][switchedElementIndex.y];
 
             selectedElement.SetGridIndex(switchedElementIndex);
             switchedElement.SetGridIndex(selectedElementIndex);
@@ -124,8 +124,8 @@ namespace Core
             selectedElement.SetRenderOrder(_renderOrderHelper.GetRenderOrder(switchedElementIndex.x, switchedElementIndex.y));
             switchedElement.SetRenderOrder(_renderOrderHelper.GetRenderOrder(selectedElementIndex.x, selectedElementIndex.y));
                     
-            selectedElement.transform.DOMove(upperPosition, 0.2f);
-            switchedElement.transform.DOMove(selectedElementPosition, 0.2f);
+            selectedElement.transform.DOMove(upperPosition, 0.1f);
+            switchedElement.transform.DOMove(selectedElementPosition, 0.1f);
 
             int nextRow = 0;
             int nextColumn = 0;
@@ -152,25 +152,155 @@ namespace Core
                     throw new ArgumentOutOfRangeException(nameof(moveType), moveType, null);
             }
             
-            _sessionData.Elements[nextRow][nextColumn] = selectedElement;
-            _sessionData.Elements[selectedElementIndex.x][selectedElementIndex.y] = switchedElement;
+            _session.Elements[nextRow][nextColumn] = selectedElement;
+            _session.Elements[selectedElementIndex.x][selectedElementIndex.y] = switchedElement;
         }
 
         private async void FindMatches()
         {
             _elementsToMove.Clear();
             
-            List<int2> matches = _matcher.FindMatches(_sessionData.Elements);
+            List<int2> matches = _matcher.FindMatches(_session.Elements);
 
             if (matches.Count == 0) return;
             
-            _matchedElements.Clear();
+            ProcessMatchElements(matches);
+            StartDestroyMatchElements(matches);
+
+            await UniTask.WaitForSeconds(_elementConfig.DelayBeforeDestroy);
+
+            _gridRecalculationController.RecalculateGrid();
+            RecalculateGrid();
+        }
+
+        private void RecalculateGrid()
+        {
+            _elementsToMove.Clear();
             
-            for (int i = 0; i < _sessionData.Elements.Length; i++)
+            for (int column = 0; column < _session.Elements[0].Length; column++)
             {
-                for (int k = 0; k < _sessionData.Elements[0].Length; k++)
+                if(!HasAnyElementInColumns(column)) continue;
+                if(!AnyNotHold(column)) continue;
+                if(!NotStableInColumn(column)) continue;
+                
+                FillElementsInColumn(column);
+                FillAfterMergeData(column);
+            }
+            
+            MoveElementsToNewPlaces();
+            
+            _session.ClearElements();
+            _session.FillElements(_elementFactory.GetAllActiveElements());
+            
+            Debug.Log(_session);
+        }
+
+        private void FillElementsInColumn(int column)
+        {
+            _elementsInColumns.Clear();
+
+            for (int k = 0; k < _session.Elements.Length; k++)
+            {
+                GridGameElement element = _session.Elements[k][column];
+                    
+                if (element != null)
                 {
-                    GridGameElement element = _sessionData.Elements[i][k];
+                    _elementsInColumns.Add(element);
+                }
+            }
+        }
+
+        private void FillAfterMergeData(int column)
+        {
+            int2 index = new int2(0, column);
+
+            for (int c = 0; c < _elementsInColumns.Count; c++)
+            {
+                _elementsToMove.Add(new AfterMergeData()
+                {
+                    Element = _elementsInColumns[c],
+                    Index = index,
+                    PreviousIndex = _elementsInColumns[c].GridIndex,
+                });
+
+                index += new int2(1, 0);
+            }
+        }
+
+        private bool NotStableInColumn(int column)
+        {
+            bool notStableInColumn = false;
+
+            if (_session.Elements[0][column] == null)
+            {
+                notStableInColumn = true;
+            }
+            else
+            {
+                for (int k = 1; k < _session.Elements.Length && !notStableInColumn; k++)
+                {
+                    GridGameElement element = _session.Elements[k][column];
+
+                    if (element != null && _session.Elements[k - 1][column] == null)
+                    {
+                        notStableInColumn = true;
+                    }
+                }
+            }
+
+            return notStableInColumn;
+        }
+
+        private bool AnyNotHold(int column)
+        {
+            bool anyNotHold = false;
+            for (int k = 0; k < _session.Elements.Length && !anyNotHold; k++)
+            {
+                GridGameElement element = _session.Elements[k][column];
+                    
+                if (element == null) anyNotHold = true;
+            }
+
+            return anyNotHold;
+        }
+
+        private bool HasAnyElementInColumns(int column)
+        {
+            bool hasAnyElementInColumns = false;
+
+            for (int k = 0; k < _session.Elements.Length && !hasAnyElementInColumns; k++)
+            {
+                GridGameElement element = _session.Elements[k][column];
+                    
+                if (element != null)
+                {
+                    hasAnyElementInColumns = true;
+                }
+            }
+
+            return hasAnyElementInColumns;
+        }
+
+        private void StartDestroyMatchElements(List<int2> matches)
+        {
+            _matchedElements.ForEach(element =>
+            {
+                element.SetAvailability(ElementAvailabilityType.NotAvailable);
+                element.Destroy(_elementConfig.DelayBeforeDestroy);
+            });
+
+            matches.ForEach(index => _session.Elements[index.x][index.y] = null);
+        }
+
+        private void ProcessMatchElements(List<int2> matches)
+        {
+            _matchedElements.Clear();
+
+            for (int i = 0; i < _session.Elements.Length; i++)
+            {
+                for (int k = 0; k < _session.Elements[0].Length; k++)
+                {
+                    GridGameElement element = _session.Elements[i][k];
                     
                     if(element == null) continue;
 
@@ -180,135 +310,22 @@ namespace Core
                     }
                 }
             }
-            
-            _matchedElements.ForEach(element =>
+        }
+
+        private void MoveElementsToNewPlaces()
+        {
+            foreach (AfterMergeData data in _elementsToMove)
             {
-                element.SetAvailability(ElementAvailabilityType.NotAvailable);
-                element.Destroy(_elementConfig.DelayBeforeDestroy);
-            });
-
-            matches.ForEach(index => _sessionData.Elements[index.x][index.y] = null);
-
-            await UniTask.WaitForSeconds(_elementConfig.DelayBeforeDestroy + 2f);
-            
-            _elementsToMove.Clear();
-            
-            for (int i = 0; i < _sessionData.Elements[0].Length; i++)
-            {
-                bool hasAnyElementInColumns = false;
-                
-                for (int k = 0; k < _sessionData.Elements.Length && !hasAnyElementInColumns; k++)
-                {
-                    GridGameElement element = _sessionData.Elements[k][i];
-                    
-                    if (element != null)
-                    {
-                        hasAnyElementInColumns = true;
-                    }
-                }
-                
-                if(!hasAnyElementInColumns) continue;
-
-                bool anyNotHold = false;
-                for (int k = 0; k < _sessionData.Elements.Length && !anyNotHold; k++)
-                {
-                    GridGameElement element = _sessionData.Elements[k][i];
-                    
-                    if (element == null) anyNotHold = true;
-                }
-                
-                if(!anyNotHold) continue;
-
-                bool notStableInColumn = false;
-
-                if (_sessionData.Elements[0][i] == null)
-                {
-                    notStableInColumn = true;
-                }
-                else
-                {
-                    for (int k = 1; k < _sessionData.Elements.Length && !notStableInColumn; k++)
-                    {
-                        GridGameElement element = _sessionData.Elements[k][i];
-
-                        if (element != null && _sessionData.Elements[k - 1][i] == null)
-                        {
-                            notStableInColumn = true;
-                        }
-                    }
-                }
-                
-                if(!notStableInColumn) continue;
-                
-                _elementsInColumns.Clear();
-                
-                for (int k = 0; k < _sessionData.Elements.Length; k++)
-                {
-                    GridGameElement element = _sessionData.Elements[k][i];
-                    
-                    if (element != null)
-                    {
-                        _elementsInColumns.Add(element);
-                    }
-                }
-                
-                int2 index = new int2(0, i);
-                
-                for (int c = 0; c < _elementsInColumns.Count; c++)
-                {
-                    _elementsToMove.Add(new MatchData()
-                    {
-                        Element = _elementsInColumns[c],
-                        Index = index,
-                        PreviousIndex = _elementsInColumns[c].GridIndex,
-                    });
-
-                    index += new int2(1, 0);
-                }
-            }
-            
-            for (int j = 0; j < _elementsToMove.Count; j++)
-            {
-                MatchData matchData = _elementsToMove[j];
-                int2 elementIndex = matchData.Index;
-                int2 previousIndex = matchData.PreviousIndex;
-                GridGameElement element = matchData.Element;
-                float moveTime = Mathf.Abs(previousIndex.x - elementIndex.x) * 0.2f;
-                _sessionData.Elements[elementIndex.x][elementIndex.y] = element;
-                // _sessionData.Elements[previousIndex.x][previousIndex.y] = null;
-                Vector3 position = _sessionData.Positions[elementIndex.x][elementIndex.y];
+                int2 elementIndex = data.Index;
+                int2 previousIndex = data.PreviousIndex;
+                GridGameElement element = data.Element;
+                float moveTime = Mathf.Abs(previousIndex.x - elementIndex.x) * 0.1f;
+                _session.Elements[elementIndex.x][elementIndex.y] = element;
+                Vector3 position = _session.Positions[elementIndex.x][elementIndex.y];
                 element.SetGridIndex(elementIndex);
                 element.transform.DOMove(position, moveTime);
                 element.SetRenderOrder(_renderOrderHelper.GetRenderOrder(elementIndex.x, elementIndex.y));
             }
-            
-            for (int i = 0; i < _sessionData.Elements.Length; i++)
-            {
-                for (int j = 0; j < _sessionData.Elements[i].Length; j++)
-                {
-                    _sessionData.Elements[i][j] = null;
-                }
-            }
-
-            IEnumerable<GridGameElement> elements = _elementFactory.GetAllActiveElements();
-            
-            foreach (GridGameElement element in elements)
-            {
-                int2 index = element.GridIndex;
-                _sessionData.Elements[index.x][index.y] = element;
-            }
-            
-
-            Debug.Log(_sessionData);
-            
-            _inputSystem.EnableInput();
-        }
-
-        class MatchData
-        {
-            public int2 Index;
-            public int2 PreviousIndex;
-            public GridGameElement Element;
         }
 
         private MoveType DetectMoveType(float dot, float xDirection)
@@ -321,6 +338,19 @@ namespace Core
             };
 
             return moveType;
+        }
+    }
+
+    public interface IGridRecalculationController
+    {
+        void RecalculateGrid();
+    }
+
+    public sealed class GridRecalculationController : IGridRecalculationController
+    {
+        public void RecalculateGrid()
+        {
+            
         }
     }
 }

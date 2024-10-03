@@ -48,7 +48,7 @@ namespace Infrastructure.Installers
             builder.Register<PlayerPrefsSaveService>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<SessionSaver>(Lifetime.Singleton).AsImplementedInterfaces();
 
-            builder.Register<SessionData>(Lifetime.Singleton).AsSelf();
+            builder.Register<Session>(Lifetime.Singleton).AsSelf();
         }
     }
 }

@@ -1,14 +1,36 @@
+using System.Collections.Generic;
 using System.Text;
 using Core.Element;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace Core.Session
 {
-    public class SessionData
+    public class Session
     {
         public int Level;
         public GridGameElement[][] Elements { get; set; }
         public Vector3[][] Positions { get; set; }
+
+        public void FillElements(IEnumerable<GridGameElement> elements)
+        {
+            foreach (GridGameElement element in elements)
+            {
+                int2 index = element.GridIndex;
+                Elements[index.x][index.y] = element;
+            }
+        }
+
+        public void ClearElements()
+        {
+            for (int i = 0; i < Elements.Length; i++)
+            {
+                for (int j = 0; j < Elements[i].Length; j++)
+                {
+                    Elements[i][j] = null;
+                }
+            }
+        }
 
         public override string ToString()
         {

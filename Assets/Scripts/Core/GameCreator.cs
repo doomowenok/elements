@@ -15,18 +15,18 @@ namespace Core
     {
         private readonly IGridGameElementFactory _elementFactory;
         private readonly ITransformCalculator _transformCalculator;
-        private readonly SessionData _sessionData;
+        private readonly Session.Session _session;
         private readonly GameConfig _gameConfig;
 
         public GameCreator(
             IConfigProvider configProvider,
             IGridGameElementFactory elementFactory, 
             ITransformCalculator transformCalculator,
-            SessionData sessionData)
+            Session.Session session)
         {
             _elementFactory = elementFactory;
             _transformCalculator = transformCalculator;
-            _sessionData = sessionData;
+            _session = session;
             _gameConfig = configProvider.GetConfig<GameConfig>();
         }
 
@@ -57,9 +57,9 @@ namespace Core
                 }
             }
 
-            _sessionData.Level = level;
-            _sessionData.Elements = gridGameElements;
-            _sessionData.Positions = gridPositions;
+            _session.Level = level;
+            _session.Elements = gridGameElements;
+            _session.Positions = gridPositions;
         }
 
         public void RecoverGame(SessionSaveData saveData)
@@ -103,9 +103,9 @@ namespace Core
                 }
             }
 
-            _sessionData.Level = saveData.Level;
-            _sessionData.Elements = gridGameElements;
-            _sessionData.Positions = gridPositions;
+            _session.Level = saveData.Level;
+            _session.Elements = gridGameElements;
+            _session.Positions = gridPositions;
         }
     }
 }
