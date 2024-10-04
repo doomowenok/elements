@@ -1,5 +1,6 @@
 using System;
 using Core.Element;
+using Core.Grid;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -65,7 +66,6 @@ namespace Core.Input
                 {
                     Vector3 delta = _endTouchSelectPosition - _startTouchSelectPosition;
                     
-                    // Debug.Log($"End touch: {delta}-{_lastTouchedGridElement.name}");
                     OnEndInput?.Invoke(delta, _lastTouchedGridElement);
                     
                     _startTouchSelectPosition = Vector3.zero;

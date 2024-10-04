@@ -7,7 +7,6 @@ namespace Core.Element.Config
     public sealed class ElementData
     {
         public ElementType Type;
-        public GridGameElement Prefab;
         public AnimatorOverrideController AnimatorOverrideController;
         public Sprite Sprite;
     }

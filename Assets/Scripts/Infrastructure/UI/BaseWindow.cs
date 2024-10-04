@@ -8,7 +8,7 @@ namespace Infrastructure.UI
         public event Action<BaseWindow> OnShow;
         public event Action<BaseWindow> OnHide;
 
-        public bool CanInteract { get; private set; }
+        protected bool CanInteract { get; private set; }
 
         public virtual void Show()
         {

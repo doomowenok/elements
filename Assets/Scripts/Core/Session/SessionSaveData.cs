@@ -7,8 +7,6 @@ namespace Core.Session
     public sealed class SessionSaveData
     {
         public int Level;
-        public int Rows;
-        public int Columns;
         public List<int> Elements;
     }
 }

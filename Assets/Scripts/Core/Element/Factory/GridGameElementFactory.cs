@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Core.Element.Config;
+using Core.Grid;
+using Core.Utils;
 using Cysharp.Threading.Tasks;
 using Services;
 using Services.Pool;
@@ -36,7 +38,7 @@ namespace Core.Element.Factory
             
             element = _pool.TryGet(out IPoolObject<GridGameElement> poolObject) 
                 ? poolObject.PoolObject 
-                : Object.Instantiate(data.Prefab, position, Quaternion.identity);
+                : Object.Instantiate(_elementConfig.Prefab, position, Quaternion.identity);
 
             element.transform.position = position;
             element.transform.rotation = Quaternion.identity;

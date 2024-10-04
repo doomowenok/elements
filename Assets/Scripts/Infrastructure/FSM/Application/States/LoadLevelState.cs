@@ -1,4 +1,5 @@
-using Core;
+using Core.Balloon;
+using Core.Boot;
 using Core.Session;
 using Cysharp.Threading.Tasks;
 using Services.Save;
@@ -12,17 +13,20 @@ namespace Infrastructure.FSM.Application.States
         private readonly ISceneLoader _sceneLoader;
         private readonly IGameCreator _gameCreator;
         private readonly ISaveService _saveService;
+        private readonly IGameBalloonController _balloonController;
 
         public LoadLevelState(
             IApplicationStateMachine stateMachine, 
             ISceneLoader sceneLoader,
             IGameCreator gameCreator, 
-            ISaveService saveService)
+            ISaveService saveService,
+            IGameBalloonController balloonController)
         {
             _stateMachine = stateMachine;
             _sceneLoader = sceneLoader;
             _gameCreator = gameCreator;
             _saveService = saveService;
+            _balloonController = balloonController;
         }
         
         public async UniTask Enter()
@@ -46,6 +50,8 @@ namespace Infrastructure.FSM.Application.States
             {
                 _gameCreator.CreateGame(0);
             }
+            
+            _balloonController.StartCreatingBalloons().Forget();
             
             await _stateMachine.Enter<LevelState>();
         }

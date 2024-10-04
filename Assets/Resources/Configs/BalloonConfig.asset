@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ac09be934e34cc399eacbf25614b9a6, type: 3}
+  m_Name: BalloonConfig
+  m_EditorClassIdentifier: 
+  _prefab: {fileID: 3231148932969975739, guid: 5fa77b8f33ac54aa59da89c68781598f, type: 3}
+  _balloonsData:
+  - Type: 0
+    Sprite: {fileID: 21300000, guid: d97d85a354d56483cb0ec5b6cfbcb00f, type: 3}
+  - Type: 1
+    Sprite: {fileID: 21300000, guid: bcaf112608b0f4a6989b2095bf9fb725, type: 3}
+  _balloonSize: {x: 2, y: 2.5}
+  _balloonMinMaxFrequency: {x: 0.5, y: 0.75}
+  _balloonMinMaxSpeed: {x: 0.5, y: 0.7}
+  _balloonMinMaxAmplitude: {x: 0.5, y: 2}
+  _delayMinMaxBeforeNextCreation: {x: 2, y: 4}
