@@ -34,8 +34,6 @@ namespace Core.Balloon
             int count = Random.Range(1, 4);
 
             Vector2 delayData = _balloonConfig.DelayBeforeNextCreation;
-
-            Debug.Log($"Create {count} balloons.");
             
             for (int i = 0; i < count; i++)
             {

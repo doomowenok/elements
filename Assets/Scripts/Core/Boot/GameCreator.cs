@@ -63,7 +63,7 @@ namespace Core.Boot
 
         public void RecoverGame(SessionSaveData saveData)
         {
-            LevelGridConfig levelGridConfig = _gameConfig.LevelGridConfigs[saveData.Level];
+            LevelGridConfig levelGridConfig = _gameConfig.LevelGridConfigs[saveData.Level % _gameConfig.LevelGridConfigs.Count];
             
             GridGameElement[][] gridGameElements = new GridGameElement[levelGridConfig.LevelGrid.Length][];
             Vector3[][] gridPositions = new Vector3[levelGridConfig.LevelGrid.Length][];
