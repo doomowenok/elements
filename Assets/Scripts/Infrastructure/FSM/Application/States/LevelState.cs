@@ -3,6 +3,8 @@ using Core.Input;
 using Core.UI.Level;
 using Cysharp.Threading.Tasks;
 using Infrastructure.UI;
+using Infrastructure.UI.Factory;
+using Infrastructure.UI.MVVM;
 
 namespace Infrastructure.FSM.Application.States
 {
@@ -12,7 +14,10 @@ namespace Infrastructure.FSM.Application.States
         private readonly IGridElementController _gridElementController;
         private readonly IUIController _uiController;
 
-        public LevelState(IInputSystem inputSystem, IGridElementController gridElementController, IUIController uiController)
+        public LevelState(
+            IInputSystem inputSystem,
+            IGridElementController gridElementController, 
+            IUIController uiController)
         {
             _inputSystem = inputSystem;
             _gridElementController = gridElementController;
@@ -23,21 +28,17 @@ namespace Infrastructure.FSM.Application.States
         {
             _inputSystem.EnableInput();
             _gridElementController.Initialize();
-            
-            if (!_uiController.IsOpen<LevelWindow>())
-            {
-                _uiController.GetWindow<LevelWindow>().Show();
-            }
 
-            _uiController.SetInteractionState<LevelWindow>(true);
-            
+            _uiController.CreateView<LevelView>(UIViewTypes.Level);
+            _uiController.SubscribeViewModel<LevelViewModel>();
+
             return UniTask.CompletedTask;
         }
 
         public UniTask Exit()
         {
-            _uiController.SetInteractionState<LevelWindow>(false);
             _inputSystem.DisableInput();
+            _uiController.UnsubscribeViewModel<LevelViewModel>();
             return UniTask.CompletedTask;
         }
     }

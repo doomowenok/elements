@@ -1,7 +1,9 @@
+using Infrastructure.UI.MVVM;
+
 namespace Infrastructure.UI.Factory
 {
     public interface IUIFactory
     {
-        TWindow CreateWindow<TWindow>() where TWindow : BaseWindow;
+        TView CreateWindow<TView>(int viewType) where TView : IView;
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Core.Element;
+using Extensions.Property;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -8,7 +9,7 @@ namespace Core.Session
 {
     public class SessionController
     {
-        public int Level;
+        public INotifyProperty<int> Level = new NotifyProperty<int>();
         public GridGameElement[][] Elements { get; set; }
         public Vector3[][] Positions { get; set; }
 

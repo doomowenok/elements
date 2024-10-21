@@ -33,7 +33,7 @@ namespace Core.Save
                 }
             }
             
-            _saveData.Level = _sessionController.Level;
+            _saveData.Level = _sessionController.Level.Value;
             _saveData.Elements = _elements;
 
             _saveService.Save(_saveData);

@@ -1,4 +1,7 @@
+using Core.UI.Level;
 using Cysharp.Threading.Tasks;
+using Infrastructure.UI;
+using Infrastructure.UI.Factory;
 
 namespace Infrastructure.FSM.Application.States
 {
@@ -14,6 +17,7 @@ namespace Infrastructure.FSM.Application.States
         public async UniTask Enter()
         {
             UnityEngine.Application.targetFrameRate = 60;
+            
             await _stateMachine.Enter<LoadLevelState>();
         }
 
