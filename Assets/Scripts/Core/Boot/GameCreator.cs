@@ -78,7 +78,7 @@ namespace Core.Boot
                 }
             }
 
-            _sessionController.Level = level;
+            _sessionController.Level.Value = level;
             _sessionController.Elements = gridGameElements;
             _sessionController.Positions = gridPositions;
         }
