@@ -27,7 +27,7 @@ namespace Infrastructure.FSM.Application.States
         public async UniTask Enter()
         {
             await _gameplayDisposer.DisposeGameAsync();
-            _gameCreator.CreateGame(_sessionController.Level);
+            _gameCreator.CreateGame(_sessionController.Level, null);
             await _stateMachine.Enter<LevelState>();
         }
 

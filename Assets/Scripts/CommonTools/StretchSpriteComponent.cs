@@ -15,8 +15,7 @@ namespace CommonTools
         }
 
         private void Stretch()
-        {
-            
+        {   
             float screenWidth = Screen.width;
             float screenHeight = Screen.height;
 

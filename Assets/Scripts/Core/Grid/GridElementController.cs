@@ -17,6 +17,7 @@ namespace Core.Grid
 {
     public sealed class GridElementController : IGridElementController
     {
+        private const float InputLengthEpsilon = 1.0f;
         private const float DotMoveCheck = 0.5f;
         
         private readonly IInputSystem _inputSystem;
@@ -63,6 +64,8 @@ namespace Core.Grid
 
         private async void ChangeElementPositionAsync(Vector3 delta, GridGameElement selectedElement)
         {
+            if (delta.magnitude < InputLengthEpsilon) return;
+            
             float dot = Vector3.Dot(delta.normalized, Vector3.up);
             MoveType moveType = DetectMoveType(dot, delta.x);
             int2 selectedElementIndex = selectedElement.GridIndex;

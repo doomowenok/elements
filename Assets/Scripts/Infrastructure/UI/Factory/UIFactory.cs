@@ -1,3 +1,4 @@
+using Infrastructure.UI.MVVM;
 using UnityEngine;
 using VContainer;
 
@@ -14,13 +15,14 @@ namespace Infrastructure.UI.Factory
             _resolver = resolver;
         }
         
-        public TWindow CreateWindow<TWindow>() where TWindow : BaseWindow
+        public TView CreateWindow<TView>(UIViewType viewType) where TView : IView
         {
-            TWindow windowPrefab = Resources.Load<TWindow>(WindowsPath + "/" + typeof(TWindow).Name);
-            TWindow window = Object.Instantiate(windowPrefab);
-            window.gameObject.SetActive(false);
-            _resolver.Inject(window);
-            return window;
+            GameObject viewPrefab = Resources.Load<GameObject>(WindowsPath + "/" + viewType);
+            GameObject windowObject = Object.Instantiate(viewPrefab);
+            TView view = windowObject.GetComponent<TView>();
+            _resolver.Inject(view);
+            view.Subscribe();
+            return view;
         }
     }
 }

@@ -1,10 +1,13 @@
+using Infrastructure.UI.Factory;
+using Infrastructure.UI.MVVM;
+
 namespace Infrastructure.UI
 {
     public interface IUIController
     {
-        TWindow GetWindow<TWindow>() where TWindow : BaseWindow;
-        void DestroyWindow<TWindow>() where TWindow : BaseWindow;
-        bool IsOpen<TWindow>() where TWindow : BaseWindow;
-        void SetInteractionState<TWindow>(bool canInteract) where TWindow : BaseWindow;
+        void SubscribeViewModel<TViewModel>() where TViewModel : IViewModel;
+        void UnsubscribeViewModel<TViewModel>() where TViewModel : IViewModel;
+        void CreateView<TView>(UIViewType viewType) where TView : class, IView;
+        void DestroyView<TView>(UIViewType viewType) where TView : IView;
     }
 }

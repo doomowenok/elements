@@ -40,15 +40,13 @@ namespace Core.Input
         {
             if (!_inputEnabled || _camera == null) return;
             
-            if (UnityEngine.Input.touchCount > 0)
+            if (AnyInput())
             {
-                Touch touch = UnityEngine.Input.GetTouch(0);
-                Vector3 worldTouchPosition = _camera.ScreenToWorldPoint(touch.position);
-                _endTouchSelectPosition = worldTouchPosition;
+                _endTouchSelectPosition = GetWorldTouchPosition();
                 
                 if(_lastTouchedGridElement != null) return;
                 
-                RaycastHit2D hit = Physics2D.Raycast(worldTouchPosition, Vector3.forward * 20.0f);
+                RaycastHit2D hit = Physics2D.Raycast(GetWorldTouchPosition(), Vector3.forward * 20.0f);
                 
                 if (hit != default)
                 {
@@ -56,7 +54,7 @@ namespace Core.Input
                     if (_collisionDetector.Contains(id))
                     {
                         _lastTouchedGridElement = _collisionDetector.GetGridGameElementByID(id);
-                        _startTouchSelectPosition = worldTouchPosition;
+                        _startTouchSelectPosition = GetWorldTouchPosition();
                     }
                 }
             }
@@ -65,14 +63,29 @@ namespace Core.Input
                 if (_lastTouchedGridElement != null)
                 {
                     Vector3 delta = _endTouchSelectPosition - _startTouchSelectPosition;
-                    
                     OnEndInput?.Invoke(delta, _lastTouchedGridElement);
-                    
-                    _startTouchSelectPosition = Vector3.zero;
-                    _endTouchSelectPosition = Vector3.zero;
-                    _lastTouchedGridElement = null;
+                    ClearTouchData();
                 }
             }
+        }
+
+        private Vector3 GetWorldTouchPosition()
+        {
+            Touch touch = UnityEngine.Input.GetTouch(0);
+            Vector3 worldTouchPosition = _camera.ScreenToWorldPoint(touch.position);
+            return worldTouchPosition;
+        }
+
+        private void ClearTouchData()
+        {
+            _startTouchSelectPosition = Vector3.zero;
+            _endTouchSelectPosition = Vector3.zero;
+            _lastTouchedGridElement = null;
+        }
+
+        private static bool AnyInput()
+        {
+            return UnityEngine.Input.touchCount > 0;
         }
     }
 }

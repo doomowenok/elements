@@ -44,11 +44,11 @@ namespace Infrastructure.FSM.Application.States
             if (_saveService.ContainsSave<SessionSaveData>())
             {
                 SessionSaveData saveData = _saveService.Load<SessionSaveData>();
-                _gameCreator.RecoverGame(saveData);
+                _gameCreator.CreateGame(saveData.Level, saveData);
             }
             else
             {
-                _gameCreator.CreateGame(0);
+                _gameCreator.CreateGame(0, null);
             }
             
             _balloonController.StartCreatingBalloons().Forget();

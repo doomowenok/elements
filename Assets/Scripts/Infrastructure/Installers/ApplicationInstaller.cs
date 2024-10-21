@@ -6,6 +6,7 @@ using Core.Grid;
 using Core.Input;
 using Core.Save;
 using Core.Session;
+using Core.UI.Level;
 using Core.Utils;
 using Core.Win;
 using Infrastructure.Boot;
@@ -38,6 +39,8 @@ namespace Infrastructure.Installers
             RegisterProviders(builder);
             RegisterCommonServices(builder);
             RegisterGameplayServices(builder);
+            
+            CreateInstaller<LevelUIInstaller>(builder);
         }
 
         private static void RegisterGameplayServices(IContainerBuilder builder)
@@ -90,6 +93,12 @@ namespace Infrastructure.Installers
             builder.Register<LevelState>(Lifetime.Singleton);
             builder.Register<IncreaseLevelState>(Lifetime.Singleton);
             builder.Register<RestartLevelState>(Lifetime.Singleton);
+        }
+
+        private static void CreateInstaller<TInstaller>(IContainerBuilder builder) where TInstaller : InstallerBase, new()
+        {
+            TInstaller installer = new TInstaller();
+            installer.Install(builder);
         }
     }
 }
