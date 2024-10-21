@@ -11,7 +11,7 @@ namespace Infrastructure.UI
         private readonly IUIFactory _uiFactory;
         private readonly IObjectResolver _resolver;
 
-        private readonly Dictionary<UIViewType, IView> _windows = new Dictionary<UIViewType, IView>();
+        private readonly Dictionary<int, IView> _windows = new Dictionary<int, IView>();
 
         public UIController(IUIFactory uiFactory, IObjectResolver resolver)
         {
@@ -29,16 +29,16 @@ namespace Infrastructure.UI
             _resolver.Resolve<TViewModel>().Unsubscribe();
         }
 
-        public void CreateView<TView>(UIViewType viewType) where TView : class, IView
+        public void CreateView<TView>(int viewType) where TView : class, IView
         {
-            if (!IsOpen<TView>(viewType))
+            if (!IsOpen(viewType))
             {
                 TView baseWindow = _uiFactory.CreateWindow<TView>(viewType);
                 _windows.Add(viewType, baseWindow);
             }
         }
 
-        public void DestroyView<TView>(UIViewType viewType) where TView : IView
+        public void DestroyView<TView>(int viewType) where TView : IView
         {
             if (_windows.TryGetValue(viewType, out IView window))
             {
@@ -47,7 +47,6 @@ namespace Infrastructure.UI
             }
         }
 
-        private bool IsOpen<TView>(UIViewType viewType) where TView : IView => 
-            _windows.ContainsKey(viewType);
+        private bool IsOpen(int viewType) => _windows.ContainsKey(viewType);
     }
 }

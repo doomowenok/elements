@@ -4,6 +4,7 @@ using Core.UI.Level;
 using Cysharp.Threading.Tasks;
 using Infrastructure.UI;
 using Infrastructure.UI.Factory;
+using Infrastructure.UI.MVVM;
 
 namespace Infrastructure.FSM.Application.States
 {
@@ -28,7 +29,7 @@ namespace Infrastructure.FSM.Application.States
             _inputSystem.EnableInput();
             _gridElementController.Initialize();
 
-            _uiController.CreateView<LevelView>(UIViewType.Level);
+            _uiController.CreateView<LevelView>(UIViewTypes.Level);
             _uiController.SubscribeViewModel<LevelViewModel>();
 
             return UniTask.CompletedTask;

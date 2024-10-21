@@ -4,6 +4,6 @@ namespace Infrastructure.UI.Factory
 {
     public interface IUIFactory
     {
-        TView CreateWindow<TView>(UIViewType viewType) where TView : IView;
+        TView CreateWindow<TView>(int viewType) where TView : IView;
     }
 }

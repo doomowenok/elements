@@ -15,9 +15,9 @@ namespace Infrastructure.UI.Factory
             _resolver = resolver;
         }
         
-        public TView CreateWindow<TView>(UIViewType viewType) where TView : IView
+        public TView CreateWindow<TView>(int viewType) where TView : IView
         {
-            GameObject viewPrefab = Resources.Load<GameObject>(WindowsPath + "/" + viewType);
+            GameObject viewPrefab = Resources.Load<GameObject>(WindowsPath + "/" + UIViewTypes.GetName(viewType));
             GameObject windowObject = Object.Instantiate(viewPrefab);
             TView view = windowObject.GetComponent<TView>();
             _resolver.Inject(view);
