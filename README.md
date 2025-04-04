@@ -1,5 +1,5 @@
 ### Unity Version:
-    2022.3.44f1
+    6000.0.44f1
 
 ### Attention
     Project use Git LFS.
