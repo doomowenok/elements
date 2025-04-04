@@ -186,15 +186,17 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 0
+  m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
+  m_ActiveFontFeatures: 
   m_enableExtraPadding: 0
   checkPaddingRequired: 0
   m_isRichText: 1
+  m_EmojiFallbackSupport: 1
   m_parseCtrlCharacters: 1
   m_isOrthographic: 1
   m_isCullingEnabled: 0
@@ -327,9 +329,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee0f8818e337494c8f459d57218fb052, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _levelText: {fileID: 4054875458590288241}
-  _nextLevelButton: {fileID: 6688544687802005725}
-  _restartLevel: {fileID: 204252699683444360}
+  levelText: {fileID: 4054875458590288241}
+  nextLevelButton: {fileID: 6688544687802005725}
+  restartLevel: {fileID: 204252699683444360}
 --- !u!1001 &3193883370391381396
 PrefabInstance:
   m_ObjectHideFlags: 0

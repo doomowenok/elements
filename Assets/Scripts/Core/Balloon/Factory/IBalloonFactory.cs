@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Core.Balloon
+namespace Core.Balloon.Factory
 {
     public interface IBalloonFactory
     {
